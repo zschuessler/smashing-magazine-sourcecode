@@ -21,5 +21,30 @@ function SketchPlugin() {
 SketchPlugin.prototype.init = function(context) {
     this.context = context;
 
+    // Create a window
+    this.createWindow();
+
+    // Blastoff! Run the plugin.
+    [NSApp run];
+
     return this;
-}
+};
+
+/**
+ * Create Window
+ *
+ * Creates an [NSWindow] object to hold a WebView in.
+ */
+SketchPlugin.prototype.createWindow = function() {
+    this.window = [[[NSWindow alloc]
+        initWithContentRect:NSMakeRect(0, 0, 800, 800)
+        styleMask:NSTitledWindowMask | NSClosableWindowMask
+        backing:NSBackingStoreBuffered
+        defer:false
+    ] autorelease];
+
+    this.window.center();
+    this.window.makeKeyAndOrderFront_(this.window);
+
+    return this;
+};
