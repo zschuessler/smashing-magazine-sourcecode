@@ -21,6 +21,9 @@ function SketchPlugin() {
 SketchPlugin.prototype.init = function(context) {
     this.context = context;
 
+    // Generate symbol data for the webview
+    this.createSymbolsJavaScriptFile();
+
     // Create a window
     this.createWindow();
 
@@ -72,6 +75,76 @@ SketchPlugin.prototype.createWebView = function() {
     this.webView.initWithFrame(webviewFrame);
     this.webView.mainFrame().loadRequest(urlRequest);
     this.window.contentView().addSubview(this.webView);
+
+    return this;
+};
+
+/**
+ * Get All Document Symbols
+ *
+ * Gets every symbol in the document (in all pages, artboards, etc)
+ *
+ * @returns {Array} An array of MSSymbolMaster objects.
+ */
+SketchPlugin.prototype.getAllDocumentSymbols = function() {
+    var pages = this.context.document.pages();
+    var symbols = [];
+
+    // Loop through all pages
+    for (var i = 0; i < pages.count(); i++) {
+        var page = pages.objectAtIndex(i);
+
+        // Loop through all artboard layers
+        for (var k = 0; k < page.layers().count(); k++) {
+            var layer = page.layers().objectAtIndex(k);
+
+            if ('MSSymbolMaster' == layer.class()) {
+                symbols.push(layer);
+            }
+        }
+    }
+
+    return symbols;
+};
+
+/**
+ * Create Symbols JavaScript File
+ *
+ * Creates a JavaScript file representing all document master symbols.
+ * This data is consumed by the WebView for rendering symbol information.
+ *
+ * Generated file path:
+ * Contents/Sketch/app/webview/symbolData.js
+ *
+ * @returns {SketchPlugin}
+ * @method
+ */
+SketchPlugin.prototype.createSymbolsJavaScriptFile = function() {
+    /**
+     * Build the content for the JavaScript file
+     */
+    var webviewSymbols = [];
+    this.documentSymbols = this.getAllDocumentSymbols();
+
+    // Push all document symbols to an array of symbol objects
+    for (var i = 0; i < this.documentSymbols.length; i++) {
+        var symbol = this.documentSymbols[i];
+
+        webviewSymbols.push({
+            name: '' + symbol.name(),
+            symbolId: '' + symbol.symbolID(),
+            symbolIndex: i
+        });
+    }
+
+    /**
+     * Create The JavaScript File, then fill it with symbol data
+     */
+    var jsContent = 'var symbolData = ' + JSON.stringify(webviewSymbols) + ';';
+    var jsContentNSSString = [NSString stringWithFormat:"%@", jsContent];
+    var jsContentFilePath  = this.context.scriptPath.stringByDeletingLastPathComponent() + '/app/webview/symbolData.js';
+
+    [jsContentNSSString writeToFile:jsContentFilePath atomically:true encoding:NSUTF8StringEncoding error:nil];
 
     return this;
 };
