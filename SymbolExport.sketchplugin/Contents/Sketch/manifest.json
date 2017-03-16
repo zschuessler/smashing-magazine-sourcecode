@@ -1,0 +1,18 @@
+{
+  "name" : "Symbol Exporter",
+  "identifier" : "yourname.symbolexporter",
+  "version" : "1.0.0",
+  "description" : "An interface for exporting all document Symbols as images.",
+  "authorEmail" : "youremail@example.com",
+  "author" : "Your Name",
+
+  "commands" : [
+    {
+      "script" : "app.cocoascript",
+      "handler" : "onRun",
+      "shortcut" : "ctrl alt q",
+      "name" : "Export All Symbols",
+      "identifier" : "show-symbol-exporter-ui"
+    }
+  ],
+}

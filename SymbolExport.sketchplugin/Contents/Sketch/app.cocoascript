@@ -1,0 +1,11 @@
+/**
+ * onRun
+ *
+ * Bootstraps the Sketch plugin when the user calls the plugin.
+ * This method runs every time the plugin shortcut or menu item is fired.
+ *
+ * @param {object} context A generic object Sketch provides with information on the currently running Sketch instance.
+ */
+function onRun(context) {
+    context.document.displayMessage('Hello there!');
+}
