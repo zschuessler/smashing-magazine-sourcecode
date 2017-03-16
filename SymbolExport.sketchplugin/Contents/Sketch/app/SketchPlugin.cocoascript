@@ -24,6 +24,9 @@ SketchPlugin.prototype.init = function(context) {
     // Create a window
     this.createWindow();
 
+    // Create a WebView
+    this.createWebView();
+
     // Blastoff! Run the plugin.
     [NSApp run];
 
@@ -45,6 +48,30 @@ SketchPlugin.prototype.createWindow = function() {
 
     this.window.center();
     this.window.makeKeyAndOrderFront_(this.window);
+
+    return this;
+};
+
+/**
+ * Create WebView
+ *
+ * Creates a [WebView] object and loads it with content.
+ */
+SketchPlugin.prototype.createWebView = function() {
+    // create frame for loading content in
+    var webviewFrame = NSMakeRect(0, 0, 800, 800);
+
+    // Request index.html
+    var webviewFolder   = this.context.scriptPath.stringByDeletingLastPathComponent() + '/app/webview/';
+    var webviewHtmlFile = webviewFolder + 'index.html';
+    var requestUrl      = [NSURL fileURLWithPath:webviewHtmlFile];
+    var urlRequest      = [NSMutableURLRequest requestWithURL:requestUrl];
+
+    // Create the WebView, frame, and set content
+    this.webView = WebView.new();
+    this.webView.initWithFrame(webviewFrame);
+    this.webView.mainFrame().loadRequest(urlRequest);
+    this.window.contentView().addSubview(this.webView);
 
     return this;
 };
