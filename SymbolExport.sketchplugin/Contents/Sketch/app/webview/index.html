@@ -16,6 +16,15 @@
     var symbolListDiv = document.getElementById('symbol-list');
 
     /**
+     * Export assets when button is clicked
+     */
+    var exportBtn = document.getElementById('export');
+    exportBtn.onclick = function() {
+        window.location.href = 'https://localhost:8080/symbolexport';
+    }
+
+
+    /**
      * Add all symbol data to the interface
      */
     // Ensure symbols exist

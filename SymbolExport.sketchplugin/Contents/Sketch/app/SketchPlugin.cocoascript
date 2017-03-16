@@ -76,6 +76,9 @@ SketchPlugin.prototype.createWebView = function() {
     this.webView.mainFrame().loadRequest(urlRequest);
     this.window.contentView().addSubview(this.webView);
 
+    // Assign a redirect delegate to the WebView
+    this.createWebViewRedirectDelegate();
+
     return this;
 };
 
@@ -148,3 +151,72 @@ SketchPlugin.prototype.createSymbolsJavaScriptFile = function() {
 
     return this;
 };
+
+/**
+ * Create Webview Redirect Delegate
+ *
+ * Creates a Cocoa delegate class, then registers a callback for the redirection event.
+ */
+SketchPlugin.prototype.createWebViewRedirectDelegate = function() {
+    /**
+     * Create a Delegate class and register it
+     */
+    var className = 'MochaJSDelegate_DynamicClass_SymbolUI_WebviewRedirectDelegate' + NSUUID.UUID().UUIDString();
+    var delegateClassDesc = MOClassDescription.allocateDescriptionForClassWithName_superclass_(
+        className,
+        NSObject
+    );
+    delegateClassDesc.registerClass();
+
+    /**
+     * Register the “event” to respond to and specify the callback function
+     */
+    var redirectEventSelector = NSSelectorFromString(
+        'webView:willPerformClientRedirectToURL:delay:fireDate:forFrame:'
+    );
+    delegateClassDesc.addInstanceMethodWithSelector_function_(
+        // The “event” - the WebView is about to redirect soon
+        NSSelectorFromString('webView:willPerformClientRedirectToURL:delay:fireDate:forFrame:'),
+        // The “listener” - a callback function to fire
+        function(sender, URL) {
+            // Ensure its the URL we want to respond to.
+            // You can also fire different methods based on the URL if you have multiple events.
+            if ('https://localhost:8080/symbolexport' != URL) {
+                return;
+            }
+            // A special method to export symbols - we haven’t created it yet
+            this.exportAllSymbolsToImages();
+        }.bind(this)
+    );
+
+    // Associate the new delegate to the WebView we already created
+    this.webView.setFrameLoadDelegate_(
+        NSClassFromString(className).new()
+    );
+
+    return this;
+};
+
+SketchPlugin.prototype.exportAllSymbolsToImages = function() {
+    /**
+     * Loop through symbols; export each one as a PNG
+     */
+    for (var i = 0; i < this.documentSymbols.length; i++) {
+        var symbol = this.documentSymbols[i];
+
+        // Specify the path and filename to create
+        var filePath = this.context.scriptPath.stringByDeletingLastPathComponent() + '/export/' + symbol.symbolID() + '.png';
+
+        // Create preview PNG
+        var slice = [[MSExportRequest exportRequestsFromExportableLayer:symbol] firstObject];
+
+        [slice setShouldTrim:1];
+        [slice setScale:1];
+        [(this.context.document) saveArtboardOrSlice:slice toFile:filePath];
+    }
+
+    // Close the plugin and display a success message
+    this.window.close();
+    this.context.document.displayMessage('All symbols exported!');
+};
+
