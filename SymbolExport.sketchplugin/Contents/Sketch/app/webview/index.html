@@ -1,15 +1,40 @@
 <!doctype html>
 <html>
 <head>
-    <style>
-        html {
-            width: 100%;
-            height: 100%;
-            background:cornflowerblue;
-        }
-    </style>
+    <script src="symbolData.js"></script>
 </head>
 <body>
-Hello there!
+
+<!-- Header -->
+<h1>Export All Symbols as Assets</h1>
+<button id="export">Export Now</button>
+<hr/>
+<!-- Symbols List -->
+<div id="symbol-list"></div>
+
+<script>
+    var symbolListDiv = document.getElementById('symbol-list');
+
+    /**
+     * Add all symbol data to the interface
+     */
+    // Ensure symbols exist
+    if (typeof symbolData !== 'undefined'
+        && true === Array.isArray(symbolData)
+        && symbolData.length) {
+        // Append each symbol as a new div
+        for (var i = 0; i < symbolData.length; i++) {
+            var newDiv = document.createElement('div');
+            var newDivHdg = document.createElement('h3');
+            var symbolNameNode = document.createTextNode(symbolData[i].name);
+
+            newDivHdg.appendChild(symbolNameNode);
+            newDiv.appendChild(newDivHdg);
+            symbolListDiv.appendChild(newDiv);
+        }
+    } else {
+        symbolListDiv.innerText = 'No symbols found!';
+    }
+</script>
 </body>
 </html>
