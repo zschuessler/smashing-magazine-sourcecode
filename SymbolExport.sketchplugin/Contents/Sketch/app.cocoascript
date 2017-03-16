@@ -1,3 +1,10 @@
+@import 'app/SketchPlugin.cocoascript';
+
+/**
+ * @type {SketchPlugin} The Sketch plugin app class.
+ */
+var plugin = new SketchPlugin();
+
 /**
  * onRun
  *
@@ -7,5 +14,5 @@
  * @param {object} context A generic object Sketch provides with information on the currently running Sketch instance.
  */
 function onRun(context) {
-    context.document.displayMessage('Hello there!');
+    plugin.init(context);
 }

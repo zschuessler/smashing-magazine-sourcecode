@@ -1,0 +1,25 @@
+/**
+ * SketchPlugin Class
+ *
+ * Manages CocoaScript code for our plugin.
+ *
+ * @constructor
+ */
+function SketchPlugin() {
+    // The Sketch context
+    this.context = {};
+}
+
+/**
+ * Init
+ *
+ * Sets the current app & plugin context, then renders the plugin.
+ *
+ * @param {object} sketchContext An object provided by Sketch with information on the currently running app and plugin.
+ * @returns {SketchPlugin}
+ */
+SketchPlugin.prototype.init = function(context) {
+    this.context = context;
+
+    return this;
+}
